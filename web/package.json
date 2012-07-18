@@ -1,0 +1,13 @@
+{
+    "name": "Radar"
+  , "version": "0.0.1"
+  , "description": "Make a Radar with Arduino + Node.js + Raphael"
+  , "dependencies": {
+        "socket.io": ">= 0.9.6"
+      , "serialport": ">= 0.7.5"
+    }
+  , "main": "app"
+  , "engines": {
+        "node": ">= 0.6.x"
+    }
+}
