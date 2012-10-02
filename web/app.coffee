@@ -3,7 +3,7 @@ url = require "url"
 http = require "http"
 
 {SerialPort}  = require "serialport"
-portName = "/dev/tty.usbmodemfa1341"
+portName = "/dev/tty.usbmodemfa1321" #Select your serial port
 
 # static file http server
 # serve files for application directory

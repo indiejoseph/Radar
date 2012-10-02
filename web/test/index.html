@@ -30,24 +30,35 @@
 			
 			var minAngle = -90;
 			var maxAngle = 90;
+			var maxDistance = 100;
+			var width = 290;
 			var pos = []; // Radar positions
-			var high = 0; // Highest position
 			var drawPath = "";
-			var detectAngle = 15;
+			var detectAngle = 10;
 			var centerP = {x:400, y:300}; // Center points
 			var paper = Raphael("canvas", 800, 600);
-			var duration = 700;
+			var duration = 350;
 			var curve;
-			var circle = paper.circle(centerP.x, centerP.y, 200).attr({ fill: "#fbb03b", "stroke-width": 0, opacity: 0.2 });
-			var area1 = paper.circle(centerP.x, centerP.y, 100).attr({ fill: "#fbb03b", "stroke-width": 0, opacity: 0.2 });
-			var area2 = paper.circle(centerP.x, centerP.y, 32).attr({ fill: "#fbb03b", "stroke-width": 0, opacity: 0.2 });
-			var radar = paper.path("M" + centerP.x + "," + centerP.y + " v-200 a200,200 0 0,0 -200,200 z")
+			var defaultStyle = { fill: "#fbb03b", "stroke-width": 1, "stroke": "#fbb03b",  "fill-opacity": 0.5, opacity: 0.35 };
+			var defaultFontStyle = { "font-size": 13, "fill": "#FFF", "font-weight": "bold" };
+			var gridStyle = { "stroke-width": 1, "stroke": "#fbb03b", opacity: 0.35 };
+			var circle = paper.circle(centerP.x, centerP.y, width).attr(defaultStyle);
+			var area0 = paper.circle(centerP.x, centerP.y, width * 0.75).attr(defaultStyle);
+			var area1 = paper.circle(centerP.x, centerP.y, width * 0.5).attr(defaultStyle);
+			var area2 = paper.circle(centerP.x, centerP.y, width * 0.25).attr(defaultStyle);
+			var radar = paper.path("M" + centerP.x + "," + centerP.y + " v-" + width + " a" + width + "," + width + " 0 0,0 -" + width + "," + width + " z")
 				.attr({
 					"fill": "225-#fbb03b:20-#fbb03b:50",
-					"fill-opacity": "0.01",
-					"stroke": ""
+					"fill-opacity": "0.001",
+					"stroke-width": 0
 				})
-				.transform("r-180,400,300");
+				.transform("r-90," + centerP.x + "," + centerP.y);
+			var cmLabel1 = paper.text(centerP.x, centerP.y - width, maxDistance + "+cm").attr(defaultFontStyle);
+			var cmLabel2 = paper.text(centerP.x, centerP.y - width * 0.75, (maxDistance * 0.75) + "cm").attr(defaultFontStyle);
+			var cmLabel3 = paper.text(centerP.x, centerP.y - width * 0.5, (maxDistance * 0.5) + "cm").attr(defaultFontStyle);
+			var cmLabel4 = paper.text(centerP.x, centerP.y - width * 0.25, (maxDistance * 0.25) + "cm").attr(defaultFontStyle);
+			var cmLabel5 = paper.text(centerP.x, centerP.y, "0cm").attr(defaultFontStyle);
+			var grid1 = paper.path("M" + (centerP.x - width) + " " + centerP.y + "l" + (width * 2) + " 0M" + centerP.x + " " +  centerP.y + "l0 -" + width + " M" + centerP.x + " " +  centerP.y + "l" + (Math.sin(Math.PI-(45*Math.PI/180)) * width) + " " + (Math.cos(Math.PI-(45*Math.PI/180)) * width) + "M" + centerP.x + " " +  centerP.y + "l" + (Math.sin(Math.PI-(-45*Math.PI/180)) * width) + " " + (Math.cos(Math.PI-(-45*Math.PI/180)) * width)).attr(gridStyle);
 			
 			// Logic _______________________________________________
 			
@@ -60,56 +71,65 @@
 			function draw(distance, angle) {
 				
 				var lastPos;
-				
-				high = (distance > high)?distance:high;
+
 				pos.push(distance);
+				
+				if(angle == minAngle) {
+					drawPath = "";
+					high = 0;
+					pos = [];
+					curve = paper.path(drawPath.substr(0, drawPath.indexOf("l"))).attr({
+						"stroke-width": 1,
+						"stroke": "#fbb03b",
+						"fill": "#fbb03b",
+						"fill-opacity": 0.45
+					});
+					radar.attr({transform: "r-90," + centerP.x + "," + centerP.y})
+				}
 
 				for(var i = 0; i < pos.length; i++) {
-					var d, p, path;
+					var d, p, path, nx, ny;
 					
-					p = (pos[i])?((pos[i] / high) * 200):0;
-					a = (i * 15) - 90;
-					d = getPointAt(centerP, p, a - (detectAngle/2));
-					d2 = getPointAt(centerP, p, a + (detectAngle/2));
+					// Remove last points
+					drawPath = drawPath.substr(0, drawPath.lastIndexOf("l"));
+					
+					p = (pos[i])?((pos[i]/maxDistance) * width):0;
+					p = (p > width)?width:p;
+					a = (i * detectAngle) - 90;
+					pointZero = {x:0,y:0};
+					d = getPointAt(pointZero, p, a);
+					d2 = getPointAt(pointZero, p, a + detectAngle);
 					
 					if(i == 0) {
-						drawPath = "M" + d.x + " " + d.y + "l" + (d2.x - d.x) + " " + (d2.y - d.y);
+						drawPath = "M" + centerP.x + " " + centerP.y + "l" + d.x + " " + d.y + "l" + (d2.x - d.x) + " " + (d2.y - d.y);						
 					} else {
-						var nx = (d.x - lastPos.x);
-						var ny = (d.y - lastPos.y);
+						nx = (d.x - lastPos.x);
+						ny = (d.y - lastPos.y);
 						drawPath += "l" + nx + " " + ny  + "l" + (d2.x - d.x) + " " + (d2.y - d.y);
 					}
+					
+					// Close the path
+					d = getPointAt(pointZero, 0, a);
+					drawPath += "l" + (d.x - d2.x) + " " + (d.y - d2.y);
 					
 					lastPos = {x: d2.x, y: d2.y};
 				}
 
-				if(curve == null) {
-					curve = paper.path(drawPath.substr(0, drawPath.indexOf("l"))).attr({
-						"stroke-width": 4,
-						"stroke": "#fbb03b"
-					});
-				}
-
 				// Radar animation
-				var a = Math.map(angle, minAngle, maxAngle, minAngle - (detectAngle / 2), maxAngle + (detectAngle / 2));
-				radar.animate({transform: "r" + a + "," + centerP.x + "," + centerP.y + "}"}, duration, function() {
-					curve.animate({path: drawPath}, duration);
+				radar.animate({transform: "r" + angle + "," + centerP.x + "," + centerP.y}, duration);
+				
+				var lastPath = drawPath;
+				var lastPath1 = drawPath.substr(0, drawPath.lastIndexOf("l"));
+				var lastPath2 = drawPath.substr(0, lastPath1.lastIndexOf("l"));
+				curve.attr({path: lastPath2}).animate({path: lastPath1}, duration, function() {
+					this.attr({path: lastPath});
 				});
 				
+				// Last step
 				if(angle >= maxAngle) {
-					curve.animate({path: drawPath}, duration, function() {
-						this.animate({opacity: 0}, duration * 2, function() {
-							this.remove();
-						});
+					curve.animate({opacity: 0}, duration * 4, function() {
+						this.remove();
 					});
-					radar.animate({transform: "r180," + centerP.x + "," + centerP.y + "}"}, duration, function() {
-						this.attr({transform: "r-180," + centerP.x + "," + centerP.y + "}"});
-					});
-					curve = null;
-					angle = minAngle;
-					drawPath = "";
-					high = 0;
-					pos = [];
 				}
 				
 				stats.update();
@@ -124,14 +144,13 @@
 					if(angle > maxAngle) {
 						angle = minAngle;
 					}
-					
-					d = ~~(Math.random() * 50) + 50;
+
+					d = ~~(Math.random() * 100) + 10;
 					//d = 50;
-					r = angle;
-					draw(d, r);
-					angle += 15;
+					draw(d, angle);
+					angle += 10;
 					loop();
-				}, 750);
+				}, 350);
 			}
 			
 			loop();
