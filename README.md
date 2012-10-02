@@ -3,7 +3,7 @@ Radar
 
 Arduino Servo controller with Ultrasonic sensor, that will send the value from the distance sensor to Node.js via USB serial and leveraging socket.io to send the data to browser in realtime.
 
-[Demo:](http://www.youtube.com/watch?v=v19jxMuqsWI&feature=youtu.be)
+[Demo Video](http://www.youtube.com/watch?v=v19jxMuqsWI&feature=youtu.be)
 
 Updated (2012-10-2)
 Changed to Ultrasonic sensor(HC-SR04) and library http://freecode.com/projects/hc-sr04-ultrasonic-arduino-library
