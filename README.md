@@ -13,3 +13,5 @@ Updated (2012-10-2)
 ![Arduino](https://raw.github.com/indiejoseph/Radar/master/ultrasonic_on_servo.jpg)
 
 ![Screen Shot](https://raw.github.com/indiejoseph/Radar/master/screenshot.jpg)
+
+![Scan](https://raw.github.com/indiejoseph/Radar/master/scan.jpg)
