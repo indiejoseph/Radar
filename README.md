@@ -15,3 +15,5 @@ Updated (2012-10-2)
 ![Screen Shot](https://raw.github.com/indiejoseph/Radar/master/screenshot.jpg)
 
 ![Scan](https://raw.github.com/indiejoseph/Radar/master/scan.jpg)
+
+![Sketch](https://raw.github.com/indiejoseph/Radar/master/sketch.png)
